@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import xlsxwriter , json
 houses=[]
+def funcname( house, place):
+
+    pass
 class House:
     def __init__(self,address,features,info,overview,distances,source):
         self.address=address
@@ -110,7 +113,7 @@ worksheet.write(1,0,"Address")
 
 
 col=1
-for info in (houses[0].info+houses[0].overview+houses[0].distances+[["Distance to comp sci and law"],["Distance to physics"],["Walking duration to comp sci and law"],["Walking duration to physics"],["Bus travel to Comp sci and law"],["Bus travel to physics"],["Features"],["Source"],["Any questions?"]]):
+for info in (houses[0].info+houses[0].overview+houses[0].distances+[["Distance to comp sci and law"],["Distance to Etas"],["Cycling duration to Etas"],["Walking duration to Comp Sci"],["Bus travel to Comp sci and law"],["Cycling duration to Comp Sci"],["Features"],["Source"],["Any questions?"]]):
         worksheet.write(1,col,str(info[0]))
         col+=1
 
@@ -131,38 +134,59 @@ for house in houses:
     #Find time to get to Comp sci and Law and phy
     phy="Physics and Electronic Engineering Buildings, Heslington, York YO10 5EZ".replace(" ","+")
     compSciAndLaw="Department of Computer Science, Deramore Ln, Heslington YO10 5GH".replace(" ","+")
+    etas="YO10 3JB".replace(" ","+")
 
-
-    phyWalkData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=walking&destination=' + phy + '&key=AIzaSyC6P_8fzVlH0jHTtlHeemKj8n2zv60wyFk').text
-    compSciAndLawWalkData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=walking&destination=' + compSciAndLaw + '&key=AIzaSyC6P_8fzVlH0jHTtlHeemKj8n2zv60wyFk').text
-    phyBusData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=transit&destination=' + phy + '&key=AIzaSyC6P_8fzVlH0jHTtlHeemKj8n2zv60wyFk').text
-    compSciAndLawBusData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=transit&destination=' + compSciAndLaw + '&key=AIzaSyC6P_8fzVlH0jHTtlHeemKj8n2zv60wyFk').text
-
-
-
-    durationWalkPhy=json.loads(phyWalkData)["routes"][0]["legs"][0]["duration"]["text"]
-    durationBusPhy=json.loads(phyBusData)["routes"][0]["legs"][0]["duration"]["text"]
-    distancePhy=json.loads(phyWalkData)["routes"][0]["legs"][0]["distance"]["text"]
-
-
-    durationWalkCompSciAndLawData=json.loads(compSciAndLawWalkData)["routes"][0]["legs"][0]["duration"]["text"]
-    durationBusCompSciAndLawData=json.loads(compSciAndLawBusData)["routes"][0]["legs"][0]["duration"]["text"]
-    distanceCompSciAndLawData=json.loads(compSciAndLawWalkData)["routes"][0]["legs"][0]["distance"]["text"]
-
+    compSciAndLawWalkData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=walking&destination=' + compSciAndLaw + '&key=AIzaSyAlIIInHusd1d0gQM3z923cC8rjgB65lO4').text
+    compSciAndLawBusData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=transit&destination=' + compSciAndLaw + '&key=AIzaSyAlIIInHusd1d0gQM3z923cC8rjgB65lO4').text
+    compSciAndLawCycleData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=bicycling&destination=' + compSciAndLaw + '&key=AIzaSyAlIIInHusd1d0gQM3z923cC8rjgB65lO4').text
+    compSciAndLawDrivingData=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&destination=' + compSciAndLaw + '&key=AIzaSyAlIIInHusd1d0gQM3z923cC8rjgB65lO4').text
+    etas=requests.get('https://maps.googleapis.com/maps/api/directions/json?origin=' + str(house.address).replace(" ", "+") + '&mode=cycle&destination=' + etas + '&key=AIzaSyAlIIInHusd1d0gQM3z923cC8rjgB65lO4').text
+    try:
+        durationWalkCompSciAndLawData=json.loads(compSciAndLawWalkData)["routes"][0]["legs"][0]["duration"]["text"]
+    except Exception:
+        durationWalkCompSciAndLawData=0
+    try:
+        durationBusCompSciAndLawData=json.loads(compSciAndLawBusData)["routes"][0]["legs"][0]["duration"]["text"]
+    except Exception:
+        durationBusCompSciAndLawData=0
+    try:
+        distanceCompSciAndLawData=json.loads(compSciAndLawWalkData)["routes"][0]["legs"][0]["distance"]["text"]
+    except Exception:
+        distanceCompSciAndLawData=0
+    try:
+        etasDataDuration=json.loads(etas)["routes"][0]["legs"][0]["duration"]["text"]
+    except Exception:
+        etasDataDuration=0
+    try:
+        etasDataDistance=json.loads(etas)["routes"][0]["legs"][0]["distance"]["text"]
+    except Exception:
+        etasDataDistance=0
+    try:
+        compSciAndLawDrivingData=json.loads(compSciAndLawDrivingData)["routes"][0]["legs"][0]["duration"]["text"]
+    except Exception:
+        compSciAndLawDrivingData=0
+    try:
+        compSciAndLawCycleData=json.loads(compSciAndLawCycleData)["routes"][0]["legs"][0]["duration"]["text"]
+    except Exception:
+        compSciAndLawCycleData=0
 
     col+=1
     worksheet.write(row,col,distanceCompSciAndLawData)
     col+=1
-    worksheet.write(row,col,distancePhy)
+    worksheet.write(row, col, etasDataDistance)
+    col+=1
+    worksheet.write(row, col, etasDataDuration)
     col+=1
     worksheet.write(row, col, durationWalkCompSciAndLawData)
     col+=1
-    worksheet.write(row, col, durationWalkPhy)
-    col+=1
     worksheet.write(row, col, durationBusCompSciAndLawData)
     col+=1
-    worksheet.write(row, col, durationBusPhy)
+    worksheet.write(row, col, compSciAndLawCycleData)
     col+=1
+
+    worksheet.write(row, col, compSciAndLawDrivingData)
+    col+=1
+
     worksheet.write(row,col,house.source)
     col+=1
     worksheet.write(row,col,",".join(house.features))
